@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESS Addon Generator for MCPE</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --danger: #ef4444;
+            --danger-dark: #dc2626;
+            --dark-bg: #0f172a;
+            --dark-card: #1e293b;
+            --dark-border: #334155;
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --info: #0ea5e9;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1e1b4b 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #818cf8, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        @media (min-width: 992px) {
+            .main-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .card h2 {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .card h2 svg {
+            margin-right: 10px;
+            width: 24px;
+            height: 24px;
+        }
+
+        .section-1 h2 {
+            color: #a5b4fc;
+        }
+
+        .section-2 h2 {
+            color: #6ee7b7;
+        }
+
+        .section-3 h2 {
+            color: #67e8f9;
+        }
+
+        .section-4 h2 {
+            color: #c4b5fd;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: rgba(51, 65, 85, 0.5);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            color: var(--text-light);
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed var(--dark-border);
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .file-upload img {
+            width: 96px;
+            height: 96px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin: 0 auto 15px;
+            border: 2px solid var(--dark-border);
+        }
+
+        .file-upload label {
+            display: inline-block;
+            background: var(--dark-card);
+            color: #818cf8;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-upload label:hover {
+            background: #374151;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .file-upload p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-size: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), #7c3aed);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, var(--primary-dark), #6d28d9);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, var(--secondary), #0d9488);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(to right, var(--secondary-dark), #0f766e);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            padding: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-dark);
+            transform: scale(1.05);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* Command List */
+        .command-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .command-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .command-list::-webkit-scrollbar-track {
+            background: var(--dark-card);
+            border-radius: 4px;
+        }
+
+        .command-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .command-list::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        .command-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(51, 65, 85, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .command-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .command-name {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .command-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            background: var(--success);
+        }
+
+        .toast-error {
+            background: var(--danger);
+        }
+
+        .toast-info {
+            background: var(--info);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        .scale-in {
+            animation: scaleIn 0.4s ease-out forwards;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .card h2 {
+                font-size: 1.3rem;
+                justify-content: center;
+            }
+            
+            .file-upload {
+                padding: 15px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header slide-up">
+            <h1>ESS Addon Generator</h1>
+            <p>Alat modern untuk membuat addon Minecraft Bedrock Anda sendiri dengan cepat dan mudah.</p>
+        </header>
+
+        <main class="main-grid">
+            <!-- Kolom Kiri: Konfigurasi & Form -->
+            <div class="left-column">
+                <!-- Bagian 1: Detail Proyek -->
+                <section class="card section-1 fade-in">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+                        </svg>
+                        1. Detail Proyek
+                    </h2>
+                    <div class="form-content">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="addonName">Nama Addon</label>
+                                <input type="text" id="addonName" class="form-input" placeholder="My Awesome Addon" value="Essential Script">
+                            </div>
+                            <div class="form-group">
+                                <label for="addonDesc">Deskripsi Addon</label>
+                                <input type="text" id="addonDesc" class="form-input" placeholder="Addon by ESS Generator" value="Addon generated with ESS Generator">
+                            </div>
+                            <div class="form-group">
+                                <label for="serverVersion">Versi @minecraft/server</label>
+                                <input type="text" id="serverVersion" class="form-input" value="2.3.0-beta">
+                            </div>
+                            <div class="form-group">
+                                <label for="serverUiVersion">Versi @minecraft/server-ui</label>
+                                <input type="text" id="serverUiVersion" class="form-input" value="2.1.0-beta">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="packIcon">Ikon Pack (PNG)</label>
+                            <div class="file-upload">
+                                <img id="iconPreview" src="https://placehold.co/128x128/1e293b/93c5fd?text=Icon" alt="Icon Preview">
+                                <div class="upload-controls">
+                                    <label for="packIcon">Upload file</label>
+                                    <input id="packIcon" name="packIcon" type="file" accept="image/png">
+                                    <p>atau drag and drop</p>
+                                </div>
+                                <p class="file-info">256x256 direkomendasikan</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bagian 2: Pembuat Command -->
+                <section class="card section-2 fade-in" style="animation-delay: 0.1s;">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        2. Tambah Command
+                    </h2>
+                    <form id="commandForm" class="form-content">
+                        <div class="form-group">
+                            <label for="commandName">Nama Command (huruf kecil, tanpa spasi)</label>
+                            <input type="text" id="commandName" class="form-input" placeholder="contoh: feed, heal, fly" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="commandDesc">Deskripsi Command</label>
+                            <input type="text" id="commandDesc" class="form-input" placeholder="Memberi makan pemain" required>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="permissionType">Tipe Izin</label>
+                                <select id="permissionType" class="form-select">
+                                    <option value="any">Semua Pemain (Any)</option>
+                                    <option value="admin">Hanya Admin (OP)</option>
+                                    <option value="tag">Memerlukan Tag</option>
+                                </select>
+                            </div>
+                            <div id="tagInputContainer" class="form-group hidden">
+                                <label for="requiredTag">Tag yang Diperlukan</label>
+                                <input type="text" id="requiredTag" class="form-input" placeholder="contoh: VIP">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="runFunction">Aksi yang Dijalankan</label>
+                            <select id="runFunction" class="form-select">
+                                <option value="scriptevent">Jalankan Script Event</option>
+                                <option value="command">Jalankan Command Server</option>
+                                <option value="message">Kirim Pesan ke Pemain</option>
+                            </select>
+                        </div>
+                        <div id="functionArgContainer" class="form-group">
+                            <label for="functionArg">Detail Aksi</label>
+                            <input type="text" id="functionArg" class="form-input" placeholder="ess:[nama_event]" value="ess:">
+                        </div>
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-secondary">
+                                Tambah Command
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Kolom Kanan: Daftar Command & Generate -->
+            <div class="right-column">
+                <!-- Bagian 3: Daftar Command -->
+                <section class="card section-3 fade-in" style="animation-delay: 0.2s;">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+                        </svg>
+                        3. Daftar Command
+                    </h2>
+                    <div id="commandList" class="command-list">
+                        <p class="empty-state">Belum ada command yang ditambahkan.</p>
+                    </div>
+                </section>
+
+                <!-- Bagian 4: Generate Addon -->
+                <section class="card section-4 fade-in" style="animation-delay: 0.3s;">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        4. Generate Addon
+                    </h2>
+                    <p class="generate-info">Setelah semua command ditambahkan, klik tombol di bawah untuk mengunduh addon dalam format .mcaddon</p>
+                    <button id="generateBtn" class="btn btn-primary btn-full scale-in">
+                        Generate & Download
+                    </button>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <p>Toast message</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addonState = {
+                details: {
+                    name: 'Essential Script',
+                    description: 'Addon generated with ESS Generator',
+                    serverVersion: '2.3.0-beta',
+                    serverUiVersion: '2.1.0-beta',
+                    icon: null,
+                    iconFileName: 'pack_icon.png'
+                },
+                commands: []
+            };
+
+            // Elemen UI
+            const addonNameInput = document.getElementById('addonName');
+            const addonDescInput = document.getElementById('addonDesc');
+            const serverVersionInput = document.getElementById('serverVersion');
+            const serverUiVersionInput = document.getElementById('serverUiVersion');
+            const packIconInput = document.getElementById('packIcon');
+            const iconPreview = document.getElementById('iconPreview');
+            
+            const commandForm = document.getElementById('commandForm');
+            const commandNameInput = document.getElementById('commandName');
+            const commandDescInput = document.getElementById('commandDesc');
+            const permissionTypeSelect = document.getElementById('permissionType');
+            const tagInputContainer = document.getElementById('tagInputContainer');
+            const requiredTagInput = document.getElementById('requiredTag');
+            const runFunctionSelect = document.getElementById('runFunction');
+            const functionArgContainer = document.getElementById('functionArgContainer');
+            const functionArgInput = document.getElementById('functionArg');
+
+            const commandList = document.getElementById('commandList');
+            const generateBtn = document.getElementById('generateBtn');
+            const toast = document.getElementById('toast');
+            
+            // --- Event Listeners ---
+            addonNameInput.addEventListener('input', (e) => addonState.details.name = e.target.value);
+            addonDescInput.addEventListener('input', (e) => addonState.details.description = e.target.value);
+            serverVersionInput.addEventListener('input', (e) => addonState.details.serverVersion = e.target.value);
+            serverUiVersionInput.addEventListener('input', (e) => addonState.details.serverUiVersion = e.target.value);
+
+            packIconInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type === 'image/png') {
+                    addonState.details.icon = file;
+                    const reader = new FileReader();
+                    reader.onload = (event) => { 
+                        iconPreview.src = event.target.result;
+                        iconPreview.classList.add('scale-in');
+                    };
+                    reader.readAsDataURL(file);
+                    showToast('Ikon berhasil diunggah.', 'success');
+                } else {
+                    addonState.details.icon = null;
+                    iconPreview.src = 'https://placehold.co/128x128/1e293b/93c5fd?text=Icon';
+                    if(file) showToast('Gagal! Hanya file PNG yang diizinkan.', 'error');
+                }
+            });
+
+            permissionTypeSelect.addEventListener('change', () => {
+                if (permissionTypeSelect.value === 'tag') {
+                    tagInputContainer.classList.remove('hidden');
+                    tagInputContainer.classList.add('slide-up');
+                } else {
+                    tagInputContainer.classList.add('hidden');
+                }
+            });
+
+            runFunctionSelect.addEventListener('change', () => {
+                const selected = runFunctionSelect.value;
+                if (selected === 'scriptevent') {
+                    functionArgInput.placeholder = 'ess:[nama_event]';
+                    functionArgInput.value = `ess:${commandNameInput.value || ''}`;
+                } else if (selected === 'command') {
+                    functionArgInput.placeholder = '/say Halo Dunia';
+                    functionArgInput.value = '';
+                } else if (selected === 'message') {
+                    functionArgInput.placeholder = 'Anda telah menggunakan command!';
+                    functionArgInput.value = '';
+                }
+                functionArgContainer.classList.add('scale-in');
+            });
+            
+            commandNameInput.addEventListener('input', () => {
+                if(runFunctionSelect.value === 'scriptevent') {
+                    functionArgInput.value = `ess:${commandNameInput.value || ''}`;
+                }
+            });
+
+            commandForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = commandNameInput.value.trim().toLowerCase().replace(/\s+/g, '');
+                const desc = commandDescInput.value.trim();
+                const permType = permissionTypeSelect.value;
+                const reqTag = requiredTagInput.value.trim();
+                const runFunc = runFunctionSelect.value;
+                const runArg = functionArgInput.value.trim();
+
+                if (!name || !desc || !runArg) {
+                    showToast('Harap isi semua field command!', 'error'); 
+                    return;
+                }
+                if (addonState.commands.some(cmd => cmd.name === name)) {
+                    showToast(`Command "${name}" sudah ada!`, 'error'); 
+                    return;
+                }
+                if (permType === 'tag' && !reqTag) {
+                    showToast('Harap isi nama Tag!', 'error'); 
+                    return;
+                }
+
+                addonState.commands.push({ name, desc, permType, reqTag, runFunc, runArg });
+                renderCommandList();
+                commandForm.reset();
+                permissionTypeSelect.dispatchEvent(new Event('change'));
+                runFunctionSelect.dispatchEvent(new Event('change'));
+                showToast(`Command "${name}" berhasil ditambahkan.`, 'success');
+            });
+
+            commandList.addEventListener('click', (e) => {
+                const deleteButton = e.target.closest('.delete-btn');
+                if (deleteButton) {
+                    const commandName = deleteButton.dataset.name;
+                    addonState.commands = addonState.commands.filter(cmd => cmd.name !== commandName);
+                    renderCommandList();
+                    showToast(`Command "${commandName}" dihapus.`, 'info');
+                }
+            });
+
+            generateBtn.addEventListener('click', async () => {
+                if (!addonState.details.name || !addonState.details.description) {
+                    showToast('Harap isi Nama dan Deskripsi Addon!', 'error'); 
+                    return;
+                }
+                if (addonState.commands.length === 0) {
+                    showToast('Tambahkan setidaknya satu command sebelum generate!', 'error'); 
+                    return;
+                }
+                
+                showToast('Mempersiapkan file...', 'info');
+                generateBtn.disabled = true;
+                generateBtn.style.opacity = '0.7';
+                generateBtn.style.cursor = 'not-allowed';
+                
+                try {
+                    const zip = await createZip();
+                    const content = await zip.generateAsync({ type: "blob" });
+                    saveAs(content, `${addonState.details.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mcaddon`);
+                    showToast('Addon berhasil dibuat!', 'success');
+                } catch (error) {
+                    console.error("Error generating zip:", error);
+                    showToast('Terjadi kesalahan saat membuat addon!', 'error');
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.style.opacity = '1';
+                    generateBtn.style.cursor = 'pointer';
+                }
+            });
+            
+            // --- Helper Functions ---
+            function showToast(message, type = 'success') {
+                toast.textContent = message;
+                toast.className = 'toast';
+                
+                if (type === 'success') toast.classList.add('toast-success');
+                else if (type === 'error') toast.classList.add('toast-error');
+                else if (type === 'info') toast.classList.add('toast-info');
+                
+                toast.classList.add('show');
+                setTimeout(() => { 
+                    toast.classList.remove('show'); 
+                }, 3000);
+            }
+
+            function renderCommandList() {
+                if (addonState.commands.length === 0) {
+                    commandList.innerHTML = `<p class="empty-state">Belum ada command yang ditambahkan.</p>`;
+                    return;
+                }
+                
+                commandList.innerHTML = '';
+                addonState.commands.forEach(cmd => {
+                    const div = document.createElement('div');
+                    div.className = 'command-item fade-in';
+                    div.innerHTML = `
+                        <div class="command-info">
+                            <div class="command-name">${cmd.name}</div>
+                            <div class="command-desc">${cmd.desc}</div>
+                        </div>
+                        <button data-name="${cmd.name}" class="delete-btn btn btn-danger">
+                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>`;
+                    commandList.appendChild(div);
+                });
+            }
+
+            function generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+            
+            async function createZip() {
+                const zip = new JSZip();
+                const manifest = {
+                    format_version: 2,
+                    header: {
+                        name: addonState.details.name,
+                        description: addonState.details.description,
+                        uuid: generateUUID(),
+                        version: [1, 0, 0],
+                        min_engine_version: [1, 20, 40]
+                    },
+                    modules: [{
+                        type: "script", language: "javascript",
+                        uuid: generateUUID(), version: [1, 0, 0],
+                        entry: "scripts/main.js"
+                    }],
+                    dependencies: [
+                        { "module_name": "@minecraft/server", "version": addonState.details.serverVersion },
+                        { "module_name": "@minecraft/server-ui", "version": addonState.details.serverUiVersion }
+                    ]
+                };
+                zip.file("manifest.json", JSON.stringify(manifest, null, 2));
+
+                if (addonState.details.icon) { 
+                    zip.file(addonState.details.iconFileName, addonState.details.icon); 
+                }
+                
+                const scripts = zip.folder("scripts");
+                const list = scripts.folder("List");
+                scripts.file("main.js", getFileContent('main.js'));
+                scripts.file("commands.js", getFileContent('commands.js'));
+                scripts.file("index.js", getFileContent('index.js'));
+                scripts.file("config.js", getFileContent('config.js'));
+                
+                addonState.commands.forEach(cmd => {
+                    list.file(`${cmd.name}.js`, generateCommandFileContent(cmd));
+                });
+                
+                return zip;
+            }
+
+            function generateCommandFileContent(cmd) {
+                let permission = cmd.permType === 'admin' ? '.setPermission("Admin")' : '.setPermission(Permission.Any)';
+                let runLogic;
+                
+                if(cmd.permType === 'tag') {
+                    runLogic = `
+        if (!origin.source.hasTag("${cmd.reqTag}")) {
+            return origin.source.sendMessage("§cYou don't have permission to use this command.");
+        }
+        system.run(() => ${generateRunAction(cmd)});`;
+                } else {
+                    runLogic = `system.run(() => ${generateRunAction(cmd)})`;
+                }
+                
+                return `import { CommandPermissionLevel as Permission } from "@minecraft/server";
+import Command from "../commands";
+export default {
+    data: new Command()
+        .setName("${cmd.name}")
+        .setDescription("${cmd.desc}")
+        ${permission},
+    run: (system, origin, args) => {
+        ${runLogic}
+    }
+};`;
+            }
+
+            function generateRunAction(cmd) {
+                const safeArg = cmd.runArg.replace(/"/g, '\\"');
+                switch(cmd.runFunc) {
+                    case 'scriptevent': 
+                        return `origin.source.runCommand('scriptevent ${safeArg}')`;
+                    case 'command': 
+                        return `origin.source.runCommandAsync('${safeArg.startsWith('/') ? safeArg.substring(1) : safeArg}')`;
+                    case 'message': 
+                        return `origin.source.sendMessage("${safeArg}")`;
+                    default: 
+                        return `origin.source.runCommand('scriptevent ess:${cmd.name}')`;
+                }
+            }
+            
+            function getFileContent(fileName) {
+                switch(fileName) {
+                    case 'main.js': 
+                        return `import { system } from "@minecraft/server";
+import { slashRegistry } from "./index.js"
+import config from "./config.js";
+
+system.beforeEvents.startup.subscribe(({ customCommandRegistry }) => {
+    console.log("Registering ESS Commands...");
+    let registeredCmds = 0;
+    for (const cmd of slashRegistry) {
+        if (!config[cmd.data.name]) continue;
+        const def = {
+            ...cmd.data,
+            name: \`ess:\${cmd.data.name}\`,
+        };
+        for (const [enumName, values] of cmd.data.enums ?? []) 
+            customCommandRegistry.registerEnum(enumName, values);
+
+        customCommandRegistry.registerCommand(def, (origin, ...args) => {
+            let base = null;
+            switch (origin.sourceType) {
+                case "Entity":
+                    base = origin.sourceEntity;
+                    break;
+                case "Block":
+                    base = origin.sourceBlock;
+                    break;
+                case "NPCDialogue":
+                    base = origin.initiator;
+                    break;
+                case "Server":
+                    base = origin.sourceEntity;
+                    break;
+            }
+            return cmd.run(system, { source: base, sourceType: origin.sourceType }, args);
+        });
+        registeredCmds++;
+    }
+    console.log(\`Registered \${registeredCmds} ESS commands.\`);
+});`;
+                    case 'commands.js': 
+                        return `import {
+    CustomCommandParamType as CommandType,
+    CommandPermissionLevel as Permission,
+  } from "@minecraft/server";
+  
+class Command {
+    constructor() {
+      this.name = "";
+      this.description = "";
+      this.permissionLevel = 0;
+      this.mandatoryParameters = [];
+      this.optionalParameters = [];
+      this.enums = new Map();
+    }
+    setName(name) { this.name = name; return this; }
+    setDescription(desc) { this.description = desc; return this; }
+    setPermission(level) {
+      const map = { Any: Permission.Any, GameDirectors: Permission.GameDirectors, Admin: Permission.Admin, Host: Permission.Host, Owner: Permission.Owner };
+      if (typeof level === "string") {
+        const resolved = map[level];
+        if (resolved === undefined) throw new Error(\`Invalid permission level string: \${level}\`);
+        this.permissionLevel = resolved;
+      } else if (typeof level === "number") {
+        if (level < 0 || level > 4) throw new Error(\`Invalid permission level number: \${level}\`);
+        this.permissionLevel = level;
+      } else {
+        throw new Error("Permission level must be a string or number.");
+      }
+      return this;
+    }
+    registerEnum(enumName, values) {
+      if (!Array.isArray(values) || values.length === 0) throw new Error("Enum values must be a non-empty array.");
+      this.enums.set(enumName, values);
+      return this;
+    }
+    addEnumOption(enumName, required = false) {
+      if (!this.enums.has(enumName)) { throw new Error(\`Enum "\${enumName}" is not registered.\`); }
+      const param = { type: CommandType.Enum, name: enumName };
+      if (required) { this.mandatoryParameters.push(param); } else { this.optionalParameters.push(param); }
+      return this;
+    }
+    addStringOption(name, required = false) { return this._addOption(name, CommandType.String, required); }
+    addBooleanOption(name, required = false) { return this._addOption(name, CommandType.Boolean, required); }
+    addIntegerOption(name, required = false) { return this._addOption(name, CommandType.Integer, required); }
+    addFloatOption(name, required = false) { return this._addOption(name, CommandType.Float, required); }
+    addEntitySelectorOption(name, required = false) { return this._addOption(name, CommandType.EntitySelector, required); }
+    addPlayerSelectorOption(name, required = false) { return this._addOption(name, CommandType.PlayerSelector, required); }
+    addPositionOption(name, required = false) { return this._addOption(name, CommandType.Location, required); }
+    addBlockTypeOption(name, required = false) { return this._addOption(name, CommandType.BlockType, required); }
+    addItemTypeOption(name, required = false) { return this._addOption(name, CommandType.ItemType, required); }
+    _addOption(name, type, required) {
+      const param = { name, type };
+      if (required) { this.mandatoryParameters.push(param); } else { this.optionalParameters.push(param); }
+      return this;
+    }
+}
+export default Command;`;
+                    case 'index.js': {
+                        const imports = addonState.commands.map(cmd => `import ${cmd.name} from "./List/${cmd.name}.js";`).join('\n');
+                        const exports = addonState.commands.length > 0 ? addonState.commands.map(cmd => `    ${cmd.name}`).join(',\n') : '';
+                        return `${imports}
+
+export const slashRegistry = [
+${exports}
+]`;
+                    }
+                    case 'config.js': {
+                        const configs = addonState.commands.length > 0 ? addonState.commands.map(cmd => `    ${cmd.name}: true`).join(',\n') : '';
+                        return `export default
+{ 
+${configs}
+}`;
+                    }
+                }
+            }
+            
+            // Initialize hidden elements
+            tagInputContainer.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
